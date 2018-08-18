@@ -1,11 +1,11 @@
-#include <SoftwareSerial.h> // 블루투스 통신을 위한 SoftwareSerial 라이브러리를 불러온다.
+ #include <SoftwareSerial.h> 
 #include <DHT.h>
 
 #define DHTPIN 2
 #define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
-SoftwareSerial BTSerial(6, 7); // SoftwareSerial(RX, TX)
+SoftwareSerial BTSerial(6, 7);
 
 byte buffer[256]; // 데이터 수신 버퍼
 int bufferPosition; // 버퍼에 기록할 위치
@@ -41,7 +41,7 @@ void loop () {
     buffer[bufferPosition++] = data; 
     Serial.println(data);
 
-    if (data == 'q') { // Red 막대바를 조정했을 경우 해당 값에 맞게 LED를 조절 합니다.
+    if (data == 'q') { // Red 조절
       if (bufferPosition == 4) {
         redLight = (buffer[0]-48)*100 + (buffer[1]-48)*10 + (buffer[2]-48);
         lightOn();
@@ -65,7 +65,7 @@ void loop () {
       }
     }
 
-    if (data == 'w') { // Blue 막대바를 조정했을 경우 해당 값에 맞게 LED를 조절 합니다.
+    if (data == 'w') { // Blue 조절
       if (bufferPosition == 4) {
         blueLight = (buffer[0]-48)*100 + (buffer[1]-48)*10 + (buffer[2]-48);
         lightOn();
@@ -89,7 +89,7 @@ void loop () {
       }
     }
 
-    if (data == 'e') { // Green 막대바를 조정했을 경우 해당 값에 맞게 LED를 조절 합니다.
+    if (data == 'e') { // Green 조절
       if (bufferPosition == 4) {
         greenLight = (buffer[0]-48)*100 + (buffer[1]-48)*10 + (buffer[2]-48);
         lightOn();
@@ -113,10 +113,20 @@ void loop () {
       }
     }
 
-    if(data == 't'){
+    if(data == 't'){ //온습도 센서 제어
      int h = dht.readHumidity();         // 변수 선언 (h는 습도)
      int t = dht.readTemperature();     // 변수 선언 (t는 온도)
-     Serial.print("Humidity: ");          // Humidity를 출력
+
+     //블루투스 전송 코드
+     BTSerial.print("Humidity: ");          // Humidity를 출력
+    BTSerial.print(h);                           // h(습도 값) 출력
+    BTSerial.print(" %\t");                   //  %를 출력
+    BTSerial.print("Temperature: ");    // Temperature를 출력
+    BTSerial.print(t);                            // t(온도 값) 출력
+    BTSerial.println(" C");
+
+    //확인용 시리얼 모니터 출력 코드
+    Serial.print("Humidity: ");          // Humidity를 출력
     Serial.print(h);                           // h(습도 값) 출력
     Serial.print(" %\t");                   //  %를 출력
     Serial.print("Temperature: ");    // Temperature를 출력
